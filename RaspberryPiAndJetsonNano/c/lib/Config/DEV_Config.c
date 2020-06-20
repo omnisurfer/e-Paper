@@ -38,6 +38,13 @@ int EPD_DC_PIN;
 int EPD_CS_PIN;
 int EPD_BUSY_PIN;
 
+#ifdef INTEL_EDISON
+	mraa_gpio_context gpioReset;
+	mraa_gpio_context gpioDataCommand;
+	mraa_gpio_context gpioChipSelect;
+	mraa_gpio_context gpioBusy;
+#endif
+
 /**
  * GPIO read and write
 **/
@@ -59,6 +66,35 @@ void DEV_Digital_Write(UWORD Pin, UBYTE Value)
 #elif USE_HARDWARE_LIB
 	Debug("not support");
 #endif
+#endif
+
+#ifdef INTEL_EDISON
+
+	//catch any call to the CS pin since that is controlled by MRAA
+	//if(Pin == EPD_CS_PIN) {
+	//	fprintf(stderr, "Bypassed write to CS on Edison GPIO%d\n", Pin);
+	//	return;
+	//}
+
+	mraa_gpio_context gpioEdison;
+
+	if(Pin == EPD_RST_PIN)
+		gpioEdison = gpioReset;
+	else if(Pin == EPD_DC_PIN)
+		gpioEdison = gpioDataCommand;
+	else if(Pin == EPD_CS_PIN)
+		gpioEdison = gpioChipSelect;
+	else if(Pin == EPD_BUSY_PIN)
+		gpioEdison = gpioBusy;
+
+	mraa_result_t status;
+
+	status = mraa_gpio_write(gpioEdison, Value);
+
+	if(status != MRAA_SUCCESS) {
+		fprintf(stderr, "Failed to write from Edison GPIO%d\n", Pin);
+		return;
+	}
 #endif
 }
 
@@ -82,6 +118,22 @@ UBYTE DEV_Digital_Read(UWORD Pin)
 	Debug("not support");
 #endif
 #endif
+
+#ifdef INTEL_EDISON
+	mraa_gpio_context gpioEdison;
+
+	if(Pin == EPD_RST_PIN)
+		gpioEdison = gpioReset;
+	else if(Pin == EPD_DC_PIN)
+		gpioEdison = gpioDataCommand;
+	else if(Pin == EPD_CS_PIN)
+		gpioEdison = gpioChipSelect;
+	else if(Pin == EPD_BUSY_PIN)
+		gpioEdison = gpioBusy;
+
+	Read_value = mraa_gpio_read(gpioEdison);
+
+#endif
 	return Read_value;
 }
 
@@ -97,7 +149,7 @@ void DEV_SPI_WriteByte(uint8_t Value)
 	wiringPiSPIDataRW(0,&Value,1);
 #elif USE_DEV_LIB
 	DEV_HARDWARE_SPI_TransferByte(Value);
-#elif USE_INTEL_EDISON_LIB
+#elif INTEL_EDISON
 #endif
 #endif
 
@@ -109,9 +161,8 @@ void DEV_SPI_WriteByte(uint8_t Value)
 #endif
 #endif
 
-#ifdef USE_INTEL_EDISON_LIB
+#ifdef INTEL_EDISON
 	mraa_spi_write(edisonSPI, Value);
-	//printf("Received: %d", recv_int);
 #endif
 }
 
@@ -137,9 +188,8 @@ void DEV_SPI_Write_nByte(uint8_t *pData, uint32_t Len)
 #endif
 #endif
 
-#ifdef USE_INTEL_EDISON_LIB
+#ifdef INTEL_EDISON
 	mraa_spi_write_buf(edisonSPI, pData, Len);
-	//printf("Received: %d", recv_int);
 #endif
 }
 
@@ -183,6 +233,64 @@ void DEV_GPIO_Mode(UWORD Pin, UWORD Mode)
 	Debug("not support");
 #endif
 #endif
+
+#ifdef INTEL_EDISON
+	// Refer to edison spi.pdf, page 22 for a table that translates arduino shield IO pin numbers to the GPxxx pin numbers used by Edison
+	fprintf(stderr, "Edison GPIO%d ", Pin);
+
+	mraa_gpio_context gpioEdison;
+	mraa_result_t status;
+
+	if(Pin == EPD_RST_PIN) {
+		gpioReset = mraa_gpio_init(Pin);
+
+		gpioEdison = gpioReset;
+	}
+	else if(Pin == EPD_DC_PIN) {
+		gpioDataCommand = mraa_gpio_init(Pin);
+
+		gpioEdison = gpioDataCommand;
+	}
+	else if(Pin == EPD_CS_PIN) {
+		gpioChipSelect = mraa_gpio_init(Pin);
+
+		gpioEdison = gpioChipSelect;
+	}
+	else if(Pin == EPD_BUSY_PIN) {
+		gpioBusy = mraa_gpio_init(Pin);
+
+		gpioEdison = gpioBusy;
+	}
+
+	if(gpioEdison == NULL) {
+		fprintf(stderr, "failed to initialize\n");
+		return;
+	}
+
+	if(Mode == !MRAA_GPIO_OUT) {
+		status = mraa_gpio_mode(gpioEdison, MRAA_GPIO_PULLUP);
+
+		printf("OUT Mode status: %d\r\n", status);
+
+		status = mraa_gpio_dir(gpioEdison, MRAA_GPIO_OUT);
+
+		printf("Out DIR status: %d\r\n", status);
+	}
+	else {
+		status = mraa_gpio_dir(gpioEdison, MRAA_GPIO_IN);
+
+		printf("IN DIR status: %d\r\n", status);
+	}
+
+	if(status != MRAA_SUCCESS) {
+		fprintf(stderr, "failed to set pin mode and direction\r\n");
+		return;
+	}
+	else {
+		printf("initialized OK\r\n");
+	}
+
+#endif
 }
 
 /**
@@ -210,7 +318,7 @@ void DEV_Delay_ms(UDOUBLE xms)
 	}
 #endif
 
-#ifdef USE_INTEL_EDISON_LIB
+#ifdef INTEL_EDISON
 	UDOUBLE i;
 	for(i=0; i < xms; i++) {
 		usleep(1000);
@@ -286,6 +394,28 @@ void DEV_GPIO_Init(void)
 	EPD_DC_PIN      = GPIO25;
 	EPD_CS_PIN      = SPI0_CS0;
 	EPD_BUSY_PIN    = GPIO24;
+#elif INTEL_EDISON
+	/* drowan_NOTES_20200620: on the Edison arduino dev board, the pin numbers seem to correspond to the arduino header pin numbers.
+	 * For example: MRAA_INTEL_EDISON_GP20 = 7, means the Edison pin maps to arduino header GPIO pin 7
+	*/
+	/*
+	 * 9 J17-10 GP111 GPIO-111 SPI-5-CS1
+	 * 10 J17-11 GP109 GPIO-109 SPI-5-SCK
+	 * 11 J17-12 GP115 GPIO-115 SPI-5-MOSI
+	 * 23 J18-10 GP110 GPIO-110 SPI-5-CS0
+	 * 24 J18-11 GP114 GPIO-114 SPI-5-MISO
+	 *
+Fairhead, Harry. Explore Intel Edison (p. 154). I/O Press. Kindle Edition.
+
+	MRAA_INTEL_EDISON_GP135 = 4,
+    MRAA_INTEL_EDISON_GP27 = 6,
+    MRAA_INTEL_EDISON_GP20 = 7,
+    MRAA_INTEL_EDISON_GP28 = 8,
+	 */
+	EPD_RST_PIN     = MRAA_INTEL_EDISON_GP135;  // pin 4
+	EPD_DC_PIN      = MRAA_INTEL_EDISON_GP27; // pin 6
+	EPD_CS_PIN      = MRAA_INTEL_EDISON_GP20; // pin 7
+	EPD_BUSY_PIN    = MRAA_INTEL_EDISON_GP28;  // pin 8
 #endif
 
 	DEV_GPIO_Mode(EPD_RST_PIN, 1);
@@ -359,13 +489,33 @@ UBYTE DEV_Module_Init(void)
 	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
 #endif
 
-#elif USE_INTEL_EDISON_LIB
+#elif INTEL_EDISON
 	printf("Configuring Intel Edison SPI\n");
+	//mraa_init();
+
+	//drowan_DEBUG_20200620:
+	DEV_GPIO_Init();
+
 	edisonSPI = mraa_spi_init(0);
 	mraa_spi_mode(edisonSPI, MRAA_SPI_MODE0);
 	mraa_spi_frequency(edisonSPI, 10e6);
 	mraa_spi_lsbmode(edisonSPI, 0);
 	mraa_spi_bit_per_word(edisonSPI, 8);
+
+	/*
+    uint8_t data;
+    int recv_int;
+    int i;
+
+    while(1) {
+		for(i = 0; i < 100; i++) {
+			data = i;
+			recv_int = mraa_spi_write(edisonSPI, data);
+			//printf("Received: %d\n", recv_int);
+			usleep(2000);
+		}
+    }
+	/**/
 
 #endif
     printf("/***********************************/ \r\n");
@@ -407,8 +557,53 @@ void DEV_Module_Exit(void)
 #elif USE_HARDWARE_LIB
 	Debug("not support");
 #endif
-#elif USE_INTEL_EDISON_LIB
+#elif INTEL_EDISON
 	printf("Closing Edison SPI...");
 	mraa_spi_stop(edisonSPI);
+
+	mraa_result_t status;
+	mraa_gpio_context gpioEdison;
+
+	//DataCommand GPIO
+	gpioEdison = mraa_gpio_init(EPD_DC_PIN);
+
+	if(gpioEdison == NULL) {
+		fprintf(stderr, "Failed to initialize Edison GPIO%d\n", EPD_DC_PIN);
+	}
+
+	status = mraa_gpio_close(gpioEdison);
+
+	if(status != MRAA_SUCCESS) {
+		fprintf(stderr, "Failed to close Edison GPIO%d\n", EPD_DC_PIN);
+	}
+
+	//Reset GPIO
+	gpioEdison = mraa_gpio_init(EPD_RST_PIN);
+
+	if(gpioEdison == NULL) {
+		fprintf(stderr, "Failed to initialize Edison GPIO%d\n", EPD_RST_PIN);
+	}
+
+	status = mraa_gpio_close(gpioEdison);
+
+	if(status != MRAA_SUCCESS) {
+		fprintf(stderr, "Failed to close Edison GPIO%d\n", EPD_RST_PIN);
+	}
+
+	//Busy GPIO
+	gpioEdison = mraa_gpio_init(EPD_BUSY_PIN);
+
+	if(gpioEdison == NULL) {
+		fprintf(stderr, "Failed to initialize Edison GPIO%d\n", EPD_BUSY_PIN);
+	}
+
+	status = mraa_gpio_close(gpioEdison);
+
+	if(status != MRAA_SUCCESS) {
+		fprintf(stderr, "Failed to close Edison GPIO%d\n", EPD_BUSY_PIN);
+	}
+
+	mraa_deinit();
+
 #endif
 }

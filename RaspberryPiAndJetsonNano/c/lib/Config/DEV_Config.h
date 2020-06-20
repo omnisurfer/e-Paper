@@ -82,8 +82,9 @@ extern "C" {
 
 #endif
 
-#ifdef USE_INTEL_EDISON_LIB
+#ifdef INTEL_EDISON
 	#include <mraa/spi.h>
+	#include <mraa/gpio.h>
 
 	mraa_spi_context edisonSPI;
 #endif
