@@ -33,6 +33,7 @@
 
 int EPD_4in2_test(void)
 {
+#if 0
     printf("EPD_4IN2_test Demo\r\n");
     if(DEV_Module_Init()!=0){
         return -1;
@@ -53,7 +54,7 @@ int EPD_4in2_test(void)
     }
     printf("Paint_NewImage\r\n");
     Paint_NewImage(BlackImage, EPD_4IN2_WIDTH, EPD_4IN2_HEIGHT, 0, WHITE);
-    
+#endif
 
 #if 0  // show bmp
     printf("show window BMP-----------------\r\n");
@@ -102,8 +103,8 @@ int EPD_4in2_test(void)
     Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
     Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
     Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
-    Paint_DrawString_CN(130, 0, " ÄãºÃabc", &Font12CN, BLACK, WHITE);
-    Paint_DrawString_CN(130, 20, "Î¢Ñ©µç×Ó", &Font24CN, WHITE, BLACK);
+    Paint_DrawString_CN(130, 0, " ï¿½ï¿½ï¿½abc", &Font12CN, BLACK, WHITE);
+    Paint_DrawString_CN(130, 20, "Î¢Ñ©ï¿½ï¿½ï¿½ï¿½", &Font24CN, WHITE, BLACK);
 
     printf("EPD_Display\r\n");
     EPD_4IN2_Display(BlackImage);
@@ -142,7 +143,7 @@ int EPD_4in2_test(void)
 		}
     }
 #endif
-
+#if 0
 	EPD_4IN2_Init_4Gray();
 	printf("show Gray------------------------\r\n");
 	free(BlackImage);
@@ -155,7 +156,8 @@ int EPD_4in2_test(void)
 	Paint_NewImage(BlackImage, EPD_4IN2_WIDTH, EPD_4IN2_HEIGHT, 0, WHITE);
 	Paint_SetScale(4);
 	Paint_Clear(WHITE);
-#if 1	
+#endif
+#if 0
 	Paint_DrawPoint(10, 80, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
     Paint_DrawPoint(10, 90, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
     Paint_DrawPoint(10, 100, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
@@ -171,20 +173,20 @@ int EPD_4in2_test(void)
     Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
     Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
     Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
-    Paint_DrawString_CN(140, 0, "ÄãºÃabc", &Font12CN, GRAY1, GRAY4);
-    Paint_DrawString_CN(140, 40, "ÄãºÃabc", &Font12CN, GRAY2, GRAY3);
-    Paint_DrawString_CN(140, 80, "ÄãºÃabc", &Font12CN, GRAY3, GRAY2);
-    Paint_DrawString_CN(140, 120, "ÄãºÃabc", &Font12CN, GRAY4, GRAY1);
+    Paint_DrawString_CN(140, 0, "ï¿½ï¿½ï¿½abc", &Font12CN, GRAY1, GRAY4);
+    Paint_DrawString_CN(140, 40, "ï¿½ï¿½ï¿½abc", &Font12CN, GRAY2, GRAY3);
+    Paint_DrawString_CN(140, 80, "ï¿½ï¿½ï¿½abc", &Font12CN, GRAY3, GRAY2);
+    Paint_DrawString_CN(140, 120, "ï¿½ï¿½ï¿½abc", &Font12CN, GRAY4, GRAY1);
 	
-    Paint_DrawString_CN(220, 0, "Î¢Ñ©µç×Ó", &Font24CN, GRAY1, GRAY4);
-    Paint_DrawString_CN(220, 40, "Î¢Ñ©µç×Ó", &Font24CN, GRAY2, GRAY3);
-    Paint_DrawString_CN(220, 80, "Î¢Ñ©µç×Ó", &Font24CN, GRAY3, GRAY2);
-    Paint_DrawString_CN(220, 120, "Î¢Ñ©µç×Ó", &Font24CN, GRAY4, GRAY1);
+    Paint_DrawString_CN(220, 0, "Î¢Ñ©ï¿½ï¿½ï¿½ï¿½", &Font24CN, GRAY1, GRAY4);
+    Paint_DrawString_CN(220, 40, "Î¢Ñ©ï¿½ï¿½ï¿½ï¿½", &Font24CN, GRAY2, GRAY3);
+    Paint_DrawString_CN(220, 80, "Î¢Ñ©ï¿½ï¿½ï¿½ï¿½", &Font24CN, GRAY3, GRAY2);
+    Paint_DrawString_CN(220, 120, "Î¢Ñ©ï¿½ï¿½ï¿½ï¿½", &Font24CN, GRAY4, GRAY1);
 	
 	EPD_4IN2_4GrayDisplay(BlackImage);
 	DEV_Delay_ms(2000);
 #endif	
-#if 1
+#if 0
 	Paint_Clear(WHITE);
     EPD_4IN2_4GrayDisplay(gImage_4in2_4Gray1);
 	DEV_Delay_ms(2000);
@@ -198,6 +200,7 @@ int EPD_4in2_test(void)
     EPD_4IN2_4GrayDisplay(BlackImage);
 	DEV_Delay_ms(2000);
 #endif	
+#if 0
 	EPD_4IN2_Clear();
 	
     printf("Goto Sleep...\r\n");
@@ -208,7 +211,7 @@ int EPD_4in2_test(void)
     // close 5V
     printf("close 5V, Module enters 0 power consumption ...\r\n");
     DEV_Module_Exit();
-    
+#endif
     return 0;
 }
 

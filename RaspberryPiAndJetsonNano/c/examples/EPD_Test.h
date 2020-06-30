@@ -37,6 +37,9 @@
 #include "Debug.h"
 #include <stdlib.h> // malloc() free()
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int EPD_1in02d_test(void);
 
@@ -73,4 +76,9 @@ int EPD_7in5_HD_test(void);
 int EPD_7in5_V2_test(void);
 int EPD_7in5bc_test(void);
 int EPD_7in5bc_V2_test(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

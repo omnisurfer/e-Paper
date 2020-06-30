@@ -498,7 +498,7 @@ UBYTE DEV_Module_Init(void)
 
 	edisonSPI = mraa_spi_init(0);
 	mraa_spi_mode(edisonSPI, MRAA_SPI_MODE0);
-	mraa_spi_frequency(edisonSPI, 10e6);
+	mraa_spi_frequency(edisonSPI, 20e6);
 	mraa_spi_lsbmode(edisonSPI, 0);
 	mraa_spi_bit_per_word(edisonSPI, 8);
 
