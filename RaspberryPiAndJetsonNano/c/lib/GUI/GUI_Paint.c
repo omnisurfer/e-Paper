@@ -239,6 +239,8 @@ void Paint_SetPixel(UWORD Xpoint, UWORD Ypoint, UWORD Color)
         
         Rdata = Rdata & (~(0xC0 >> ((X % 4)*2)));//Clear first, then set value
         Paint.Image[Addr] = Rdata | ((Color << 6) >> ((X % 4)*2));
+        printf("Rdata: %d ", Rdata);
+        printf(" ");
     }else if(Paint.Scale == 7){
 		UDOUBLE Addr = X / 2  + Y * Paint.WidthByte;
 		UBYTE Rdata = Paint.Image[Addr];

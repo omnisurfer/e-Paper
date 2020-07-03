@@ -193,9 +193,11 @@ UBYTE GUI_ReadBmp_4Gray(const char *path, UWORD Xstart, UWORD Ystart)
             if(x > Paint.Width || y > Paint.Height) {
                 break;
             }
-            temp = Image[x/2 + y * bmpInfoHeader.biWidth/2] >> ((x%2)? 0:4);//0xf 0x8 0x7 0x0 
+            temp = Image[x/2 + y * bmpInfoHeader.biWidth/2] >> ((x%2)? 0:4);//0xf 0x8 0x7 0x0
+            printf("temp: %d ", temp);
             color = temp>>2;                           //11  10  01  00  
             Paint_SetPixel(Xstart + x, Ystart + y, color);
+            printf("color: %d\r\n", color);
         }
     }
     return 0;
