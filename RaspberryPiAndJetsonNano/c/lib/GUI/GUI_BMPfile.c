@@ -172,15 +172,19 @@ UBYTE GUI_ReadBmp_4Gray(const char *path, UWORD Xstart, UWORD Ystart)
     fseek(fp, bmpFileHeader.bOffset, SEEK_SET);
     
     for(y = 0; y < bmpInfoHeader.biHeight; y++) {//Total display column
+    	printf("y %d: ", y);
         for(x = 0; x < Bmp_Width_Byte; x++) {//Show a line in the line
             if(fread((char *)&Rdata, 1, 1, fp) != 1) {
                 perror("get bmpdata:\r\n");
                 break;
             }
             if(x < Image_Width_Byte*2) { //bmp
-                Image[x + (bmpInfoHeader.biHeight - y - 1) * Image_Width_Byte*2] =  Rdata;
+                Image[x + (bmpInfoHeader.biHeight - y - 1) * Image_Width_Byte*2] =  15; //drowan_DEBUG_20200706: Rdata;
+                //63, 15, 3, 0 seems to be related...?
+                printf("\t%d\t", Rdata);
             }
         }
+        printf("\n\r");
     }
     fclose(fp);
     
@@ -193,9 +197,14 @@ UBYTE GUI_ReadBmp_4Gray(const char *path, UWORD Xstart, UWORD Ystart)
             if(x > Paint.Width || y > Paint.Height) {
                 break;
             }
-            temp = Image[x/2 + y * bmpInfoHeader.biWidth/2] >> ((x%2)? 0:4);//0xf 0x8 0x7 0x0
+            //drowan_DEBUG_20200706: trying to figure out what this does
+            temp = Image[x/2 + y * bmpInfoHeader.biWidth/2];
+            printf("x: %d, y: %d, Image: %d ", x, y, temp);
+            //bit shift by 4 if x is modulo 2?
+            temp = temp >> ((x%2)? 0:4);//0xf 0x8 0x7 0x0
             printf("temp: %d ", temp);
             color = temp>>2;                           //11  10  01  00  
+            //color = x;
             Paint_SetPixel(Xstart + x, Ystart + y, color);
             printf("color: %d\r\n", color);
         }

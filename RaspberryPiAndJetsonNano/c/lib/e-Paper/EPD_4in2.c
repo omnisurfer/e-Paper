@@ -642,7 +642,7 @@ void EPD_4IN2_4GrayDisplay(const UBYTE *Image)
 				}
 				
 			 }
-			EPD_4IN2_SendData(temp3);			
+			EPD_4IN2_SendData(temp3);
 		}
     // new  data
     EPD_4IN2_SendCommand(0x13);	 
@@ -683,7 +683,7 @@ void EPD_4IN2_4GrayDisplay(const UBYTE *Image)
 				}
 				
 			 }
-			EPD_4IN2_SendData(temp3);	
+			EPD_4IN2_SendData(temp3);
 		}
     
     EPD_4IN2_4Gray_lut();

@@ -236,17 +236,15 @@ void Paint_SetPixel(UWORD Xpoint, UWORD Ypoint, UWORD Color)
         UDOUBLE Addr = X / 4 + Y * Paint.WidthByte;
         Color = Color % 4;//Guaranteed color scale is 4  --- 0~3
         UBYTE Rdata = Paint.Image[Addr];
-        
+        printf("Img[addr]: %d ", Rdata);
         Rdata = Rdata & (~(0xC0 >> ((X % 4)*2)));//Clear first, then set value
         Paint.Image[Addr] = Rdata | ((Color << 6) >> ((X % 4)*2));
-        printf("Rdata: %d ", Rdata);
-        printf(" ");
+        printf("Rdata: %d Image[addr] %d ", Rdata, Paint.Image[Addr]);
     }else if(Paint.Scale == 7){
 		UDOUBLE Addr = X / 2  + Y * Paint.WidthByte;
 		UBYTE Rdata = Paint.Image[Addr];
 		Rdata = Rdata & (~(0xF0 >> ((X % 2)*4)));//Clear first, then set value
 		Paint.Image[Addr] = Rdata | ((Color << 4) >> ((X % 2)*4));
-		//printf("Add =  %d ,data = %d\r\n",Addr,Rdata);
 	}
 }
 

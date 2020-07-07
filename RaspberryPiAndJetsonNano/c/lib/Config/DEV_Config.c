@@ -502,21 +502,6 @@ UBYTE DEV_Module_Init(void)
 	mraa_spi_lsbmode(edisonSPI, 0);
 	mraa_spi_bit_per_word(edisonSPI, 8);
 
-	/*
-    uint8_t data;
-    int recv_int;
-    int i;
-
-    while(1) {
-		for(i = 0; i < 100; i++) {
-			data = i;
-			recv_int = mraa_spi_write(edisonSPI, data);
-			//printf("Received: %d\n", recv_int);
-			usleep(2000);
-		}
-    }
-	/**/
-
 #endif
     printf("/***********************************/ \r\n");
 	return 0;
